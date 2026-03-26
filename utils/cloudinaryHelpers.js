@@ -8,31 +8,42 @@ const cloudinary = require('./cloudinary');
  */
 const getPublicIdFromUrl = (url) => {
   if (!url || typeof url !== 'string') return null;
-  if (!/^https?:\/\//i.test(url)) return null;
 
-  // Split URL into parts
-  const parts = url.split('/');
+  try {
+    const parts = url.split('/');
 
-  // Last part is filename with extension
-  const filename = parts.slice(-1)[0];
+    // Find index of 'upload'
+    const uploadIndex = parts.findIndex(p => p === 'upload');
 
-  // Second to last part is folder
-  const folder = parts.slice(-2, -1)[0];
+    // Everything after 'upload' (skip version like v12345)
+    const publicIdParts = parts.slice(uploadIndex + 2);
 
-  // Combine folder + filename (without extension) -> public_id
-  const publicId = `${folder}/${filename.split('.').slice(0, -1).join('.')}`;
+    // Join and remove extension
+    const fullPath = publicIdParts.join('/');
+    const publicId = fullPath.substring(0, fullPath.lastIndexOf('.'));
 
-  return publicId;
+    return publicId;
+  } catch (err) {
+    console.error('Public ID extraction failed:', err.message);
+    return null;
+  }
 };
 
 const deleteCloudinaryByUrl = async (url, label = 'asset') => {
   const publicId = getPublicIdFromUrl(url);
-  if (!publicId) return;
+  if (!publicId) {
+    console.log("No publicId found for:", url);
+    return;
+  }
 
   try {
-    const extension = String(url).split('?')[0].split('.').pop().toLowerCase();
-    const isRaw = ['pdf', 'doc', 'docx'].includes(extension);
-    await cloudinary.uploader.destroy(publicId, { resource_type: isRaw ? 'raw' : 'image' });
+    const isRaw = url.includes('/raw/');
+
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: isRaw ? 'raw' : 'image',
+    });
+
+    console.log(`Deleted ${label}:`, publicId, result);
   } catch (err) {
     console.error(`Cloudinary deletion error for ${label}:`, err.message);
   }

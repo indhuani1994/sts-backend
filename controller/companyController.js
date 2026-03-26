@@ -52,6 +52,7 @@ exports.updateCompany = async (req, res) => {
     if (req.file) {
       const existing = await Company.findById(req.params.id);
       if (existing?.companyImage) {
+        console.log("I am updated inside deleteCloudinaryByUrl")
         await deleteCloudinaryByUrl(existing.companyImage, 'companyImage');
       }
       updateData.companyImage = req.file.path;

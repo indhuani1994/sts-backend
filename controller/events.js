@@ -64,6 +64,7 @@ exports.updateevent = catchAsync(async (req, res) => {
     (req.files?.src && req.files.src[0]);
 
   if (uploadedFile) {
+    console.log("Actually I am going to deleted")
     await deleteCloudinaryByUrl(event.image, 'eventImage');
     event.image = uploadedFile.path;
   }

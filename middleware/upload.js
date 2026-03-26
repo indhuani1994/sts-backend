@@ -46,13 +46,34 @@ cloudinary.config({
 // 2. Setup Cloudinary Storage for Multer
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'university_management', // Name of the folder in Cloudinary
-    resource_type: 'auto',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'pdf', 'doc', 'docx'],
-    public_id: (_req, file) => `${Date.now()}-${file.originalname.split('.')[0]}`,
-  },
-});
+  params: (req, file) => {
+    const isRaw =
+      file.mimetype === 'application/pdf' ||
+      file.mimetype === 'application/msword' ||
+      file.mimetype ===
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+    let folderName = 'others';
+
+    if (req.baseUrl.includes('student')) {
+      folderName = 'student';
+    } else if (req.baseUrl.includes('staff')) {
+      folderName = 'staff';
+    } else if (req.baseUrl.includes('course')) {
+      folderName = 'course';
+    } else if (req.baseUrl.includes('event')) {
+      folderName = 'event';
+    } else if (req.baseUrl.includes('company')) {
+      folderName = 'company';
+    }
+
+    return {
+      folder: `sts_management/${folderName}`,
+      resource_type: isRaw ? 'raw' : 'image',
+      public_id: `${Date.now()}-${file.originalname.split('.')[0]}`,
+    };
+  } // ✅ close params function
+}); // ✅ close CloudinaryStorage
 
 // 3. Keep your existing fileFilter if you want extra validation
 const fileFilter = (_req, file, cb) => {
