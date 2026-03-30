@@ -19,7 +19,23 @@ const eventSchema = new mongoose.Schema(
     eventType: {
       type: String,
       required: true,
-      enum: ['Seminar', 'Workshop', 'Celebration', 'Other'],
+ enum: [
+  'seminar',
+  'workshop',
+  'celebration',
+  'career_guidance_seminar',
+  'webinar',
+  'bootcamp',
+  'masterclass',
+  'demo_class',
+  'guest_lecture',
+  'training_session',
+  'placement_drive',
+  'interview_preparation',
+  'resume_workshop',
+  'soft_skills_training',
+  'other'
+]
     },
   },
   { timestamps: true }
