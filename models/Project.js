@@ -13,6 +13,8 @@ const projectSchema = new mongoose.Schema({
   existing: { type: String, required: true },
   proposed: { type: String, required: true },
   systemRequirements: { type: String, required: true },
+  staffId: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff', default: null },
+  staffName: { type: String, default: '' },
 
 }, { timestamps: true });
 
