@@ -144,7 +144,7 @@ exports.addEnquiry = async (req, res) => {
     enNextFollowUp
     }
 
-    if (req.user?.role === 'hr' && req.user?.profileId) {
+    if ((req.user?.role === 'hr' || req.user?.role === 'staff') && req.user?.profileId) {
       data.createdBy = req.user.profileId;
     }
 
@@ -177,7 +177,7 @@ exports.addEnquiry = async (req, res) => {
 exports.getEnquiry = async (req, res) => {
   try {
      const { role, profileId } = req.user || {};
-     const filter = role === 'hr' && profileId ? { createdBy: profileId } : {};
+     const filter = (role === 'hr' || role === 'staff') && profileId ? { createdBy: profileId } : {};
      const data = await enquiry
        .find(filter)
        .populate('createdBy', 'staffName staffMail staffMobile')
@@ -199,7 +199,7 @@ exports.getSingleEnquiry = async (req, res) => {
     if(!data) {
       res.status(404).json({error: "oops Enquiry  not found"});
     }
-    if (req.user?.role === 'hr' && req.user?.profileId) {
+    if ((req.user?.role === 'hr' || req.user?.role === 'staff') && req.user?.profileId) {
       if (String(data.createdBy || '') !== String(req.user.profileId)) {
         return res.status(403).json({ error: 'Forbidden' });
       }
@@ -236,7 +236,8 @@ exports.updateSingleEnquiry = async (req, res ) => {
     }
 
     const needsExisting =
-      (req.user?.role === 'hr' && req.user?.profileId) || typeof enStatus !== 'undefined';
+      ((req.user?.role === 'hr' || req.user?.role === 'staff') && req.user?.profileId) ||
+      typeof enStatus !== 'undefined';
     let existing = null;
     if (needsExisting) {
       existing = await enquiry
@@ -246,7 +247,7 @@ exports.updateSingleEnquiry = async (req, res ) => {
       if (!existing) {
         return res.status(404).json({error: "Enquiry page not found check again give the correct id"});
       }
-      if (req.user?.role === 'hr' && req.user?.profileId) {
+      if ((req.user?.role === 'hr' || req.user?.role === 'staff') && req.user?.profileId) {
         if (String(existing.createdBy || '') !== String(req.user.profileId)) {
           return res.status(403).json({ error: 'Forbidden' });
         }
@@ -292,7 +293,7 @@ exports.updateSingleEnquiry = async (req, res ) => {
 
 exports.deleteSingleEnquiry = async (req,res) => {
   try {
-     if (req.user?.role === 'hr' && req.user?.profileId) {
+     if ((req.user?.role === 'hr' || req.user?.role === 'staff') && req.user?.profileId) {
        const existing = await enquiry.findById(req.params.id).select('createdBy').lean();
        if (!existing) {
          return res.status(404).json({error: "page not found can't delete the unknown enquiry"});
@@ -330,7 +331,7 @@ exports.getFollowup = async (req, res) => {
 exports.registerEnquiry = async (req, res) => {
   try {
     const { role, profileId } = req.user || {};
-    if (role !== 'hr' && role !== 'admin') {
+    if (role !== 'hr' && role !== 'admin' && role !== 'staff') {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -339,7 +340,7 @@ exports.registerEnquiry = async (req, res) => {
       return res.status(404).json({ error: 'Enquiry not found' });
     }
 
-    if (role === 'hr') {
+    if (role === 'hr' || role === 'staff') {
       if (!profileId) {
         return res.status(403).json({ error: 'Forbidden' });
       }
@@ -347,7 +348,7 @@ exports.registerEnquiry = async (req, res) => {
         return res.status(403).json({ error: 'Forbidden' });
       }
       data.registeredBy = profileId;
-      data.registeredByRole = 'hr';
+      data.registeredByRole = role;
     } else if (role === 'admin') {
       data.registeredBy = null;
       data.registeredByRole = 'admin';
@@ -443,7 +444,7 @@ exports.updateEarningsStatus = async (req, res) => {
 exports.getHrEarnings = async (req, res) => {
   try {
     const { role, profileId } = req.user || {};
-    if (role !== 'hr' || !profileId) {
+    if ((role !== 'hr' && role !== 'staff') || !profileId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 

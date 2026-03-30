@@ -13,7 +13,7 @@ const enquirySchema = new mongoose.Schema({
             status: String,
             changedAt: { type: Date, default: Date.now },
             changedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
-            changedByRole: { type: String, enum: ['hr', 'admin'], default: null },
+            changedByRole: { type: String, enum: ['hr', 'admin', 'staff'], default: null },
         },
     ],
     enNextFollowUp: {type: Date},
@@ -25,7 +25,7 @@ const enquirySchema = new mongoose.Schema({
         index: true,
     },
     registeredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff', index: true },
-    registeredByRole: { type: String, enum: ['hr', 'admin'], default: null, index: true },
+    registeredByRole: { type: String, enum: ['hr', 'admin', 'staff'], default: null, index: true },
     registeredAt: { type: Date, default: null },
     registeredStudent: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', index: true },
     earningsStatus: {

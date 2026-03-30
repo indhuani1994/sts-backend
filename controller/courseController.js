@@ -239,11 +239,13 @@ exports.updateCourseSyllabus = catchAsync(async (req, res) => {
 
 exports.deleteCourse = catchAsync(async (req, res) => {
   const course = await Course.findById(req.params.id);
+  console.log(course);
   if (!course) {
     throw new ApiError(404, 'Course not found');
   }
-
-  await deleteCloudinaryByUrl(course.image, 'courseImage');
+  console.log("Course Image");
+  console.log(course.image);
+  await deleteCloudinaryByUrl(course.image, 'image');
   await Course.findByIdAndDelete(req.params.id);
 
   return sendSuccess(res, { message: 'Course deleted successfully' });
